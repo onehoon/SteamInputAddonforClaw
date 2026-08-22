@@ -14,6 +14,8 @@ function New-Fixture {
         (Join-Path $root 'Dependencies\Viiper'),
         (Join-Path $root 'ui\Views'),
         (Join-Path $root 'qam\Frontend')
+        (Join-Path $root 'dotnet\host\fxr'),
+        (Join-Path $root 'dotnet\shared\Microsoft.NETCore.App\10.0.10')
     )
     New-Item -ItemType Directory -Force -Path $directories | Out-Null
 
@@ -41,6 +43,7 @@ function New-Fixture {
         'ui\Microsoft.UI.Xaml.winmd' = 'winmd payload'
         'qam\SteamInputAddonforClaw.QamHost.exe' = 'qam executable'
         'qam\Frontend\qam.js' = 'qam frontend'
+        'dotnet\dotnet.exe' = 'private dotnet host'
     }
 
     foreach ($entry in $files.GetEnumerator()) {

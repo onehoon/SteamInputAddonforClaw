@@ -14,6 +14,7 @@ function Get-Component([string]$Path) {
     $path = $Path.ToLowerInvariant()
     if ($path.StartsWith('ui/')) { return 'UI' }
     if ($path.StartsWith('qam/')) { return 'QAM Host' }
+    if ($path.StartsWith('dotnet/')) { return 'Shared .NET Runtime' }
     if ($path.StartsWith('centermhelpersource/')) { return 'CenterM Helper' }
     if ($path.StartsWith('dependencies/hidhide/')) { return 'HidHide' }
     if ($path.StartsWith('dependencies/usbipwin2/')) { return 'USBip-win2' }
@@ -29,7 +30,7 @@ $files = @(Get-ChildItem -LiteralPath $root -Recurse -File)
 $totalBytes = [long](($files | Measure-Object -Property Length -Sum).Sum)
 $componentBytes = [ordered]@{
     'Runtime' = [long]0; 'UI' = [long]0; 'QAM Host' = [long]0; 'TDP Helper' = [long]0;
-    'CenterM Helper' = [long]0; 'HidHide' = [long]0; 'USBip-win2' = [long]0; 'VIIPER' = [long]0;
+    'CenterM Helper' = [long]0; 'Shared .NET Runtime' = [long]0; 'HidHide' = [long]0; 'USBip-win2' = [long]0; 'VIIPER' = [long]0;
     'Other / Unclassified' = [long]0
 }
 $fileComponents = foreach ($file in $files) {

@@ -74,6 +74,14 @@ if ($centerMHelperSidecars.Count -gt 0) {
     throw "CenterMHelperSource contains NativeAOT-forbidden sidecar payload: $($centerMHelperSidecars.Name -join ', ')"
 }
 
+$privateDotnet = Join-Path $PublishDirectory 'dotnet'
+foreach ($runtimeAsset in @('dotnet.exe', 'host\fxr', 'shared\Microsoft.NETCore.App')) {
+    if (-not (Test-Path -LiteralPath (Join-Path $privateDotnet $runtimeAsset) -PathType Container -ErrorAction SilentlyContinue) -and -not (Test-Path -LiteralPath (Join-Path $privateDotnet $runtimeAsset) -PathType Leaf -ErrorAction SilentlyContinue)) {
+        throw "Private .NET runtime is missing required asset: dotnet\$runtimeAsset"
+    }
+}
+if (Get-ChildItem -LiteralPath (Join-Path $PublishDirectory 'qam') -File -Filter 'System.Private.CoreLib.dll' -ErrorAction SilentlyContinue) { throw 'QAM publish contains a self-contained runtime payload.' }
+
 $uiDirectory = Join-Path $PublishDirectory 'ui'
 $uiManagedPayload = @(Get-ChildItem -LiteralPath $uiDirectory -Recurse -File -Filter '*.dll')
 $uiPriPayload = @(Get-ChildItem -LiteralPath $uiDirectory -Recurse -File -Filter '*.pri')

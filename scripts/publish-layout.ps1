@@ -15,6 +15,7 @@ $qamProject = Join-Path $PSScriptRoot '..\src\SteamInputAddonforClaw.QamHost\Ste
 $runtimeOutput = [System.IO.Path]::GetFullPath($PublishDirectory)
 $uiOutput = Join-Path $runtimeOutput 'ui'
 $qamOutput = Join-Path $runtimeOutput 'qam'
+$privateDotnetOutput = Join-Path $runtimeOutput 'dotnet'
 
 if (Test-Path -LiteralPath $runtimeOutput) {
     Remove-Item -LiteralPath $runtimeOutput -Recurse -Force
@@ -37,7 +38,12 @@ if ($LASTEXITCODE -ne 0) { throw "Runtime publish failed with exit code $LASTEXI
 dotnet publish $uiProject @commonArguments '--output' $uiOutput
 if ($LASTEXITCODE -ne 0) { throw "UI publish failed with exit code $LASTEXITCODE." }
 
-dotnet publish $qamProject @commonArguments '--output' $qamOutput
+$qamArguments = @('--configuration', $Configuration, '--runtime', 'win-x64', '--self-contained', 'false', "/p:Version=$Version", '/p:AppHostDotNetSearch=AppRelative', '/p:AppHostRelativeDotNet=../dotnet')
+if ($NoRestore) { $qamArguments += '--no-restore' }
+dotnet publish $qamProject @qamArguments '--output' $qamOutput
 if ($LASTEXITCODE -ne 0) { throw "QamHost publish failed with exit code $LASTEXITCODE." }
+
+& (Join-Path $PSScriptRoot 'stage-private-dotnet-runtime.ps1') -OutputDirectory $privateDotnetOutput
+if ($LASTEXITCODE -ne 0) { throw "Private .NET runtime staging failed with exit code $LASTEXITCODE." }
 
 Write-Host "Published Runtime and external UI layout at $runtimeOutput with version $Version."
